@@ -3,7 +3,7 @@
 - [x] **Phase 0: repo skeleton and plan**
   - Deliverable: `.gitignore`, `README.md`, `PLAN.md`, `CLAUDE.md` committed to a fresh repo.
 
-- [ ] **Phase 1: data source recon and architecture docs**
+- [x] **Phase 1: data source recon and architecture docs**
   - Deliverable: `docs/architecture.md` and `docs/data-sources.md` describing the Socrata facility catalog, permit CSV feed, refresh cadence, and end-to-end request flow.
 
 - [ ] **Phase 2: domain models, config, sport normalization**
