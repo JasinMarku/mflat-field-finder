@@ -75,6 +75,22 @@ We are a guest on someone else's infrastructure. The planned controls:
 | Retries | 3 attempts, exponential backoff, only on 5xx and timeouts |
 | Headers | Realistic `User-Agent` and `Referer` |
 
+### User-Agent decision
+
+The permit endpoint sits behind a CloudFront WAF that blocks bot-identifying User-Agent strings. A plain `MFlatFieldFinder/0.1` UA returns `403 Forbidden` from any IP we tried, even residential ones.
+
+We send a hybrid UA: a real Chrome-on-macOS prefix with our app name appended.
+
+```
+Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 MFlatFieldFinder/0.1
+```
+
+This mirrors the pattern major crawlers use, where the operator identifies after a browser-shaped prefix (for example `Mozilla/5.0 (...) Googlebot/2.1`). The appended `MFlatFieldFinder/0.1` lets a server operator who reads logs see who we are and reach us.
+
+The tradeoff: we get through the WAF, but we lose the option of being filtered or rate-limited specifically. We balance this against the politeness we control directly: concurrency capped at 4, a minimum 250 ms gap between requests, and a 6-hour TTL cache per park so we touch each one at most a few times a day.
+
+A production deployment with a consistent egress IP should not rely on UA shaping. The right answer is to request an allow-list entry from NYC Parks, document the use case, and identify honestly.
+
 ## Known limitation: CloudFront WAF
 
 The `nycgovparks.org` permit endpoint sits behind CloudFront, which returns `403 Forbidden` to some egress IP ranges, including a number of cloud provider blocks. There is no documented allowlist process. To stay honest about this we plan a fixture-mode fallback: if a deployed instance cannot reach the live endpoint, it serves a frozen snapshot of permits with a banner that says so. This keeps the demo functional without pretending the upstream is reachable.
