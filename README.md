@@ -8,6 +8,12 @@ Status: in progress (see [PLAN.md](PLAN.md))
 
 Coming soon.
 
+## Screenshots
+
+![Availability matrix](docs/images/matrix.png)
+
+![Facility detail drawer](docs/images/drawer.png)
+
 ## Architecture
 
 See [docs/architecture.md](docs/architecture.md).

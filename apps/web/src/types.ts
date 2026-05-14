@@ -28,6 +28,8 @@ export type FacilityAvailability = {
   has_full_closure: boolean;
 };
 
+export type PermitDensity = "high" | "low" | "none";
+
 export type AvailabilityResponse = {
   sport: string;
   range_start: string;
@@ -37,4 +39,5 @@ export type AvailabilityResponse = {
   total_free_minutes: number;
   generated_at: string;
   cache_status: string;
+  permit_density: PermitDensity;
 };

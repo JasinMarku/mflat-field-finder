@@ -1,5 +1,6 @@
 import type { FacilityAvailability } from "../types";
 import { buildDaySegments, totalFreeHours } from "../lib/matrix";
+import { boroughLabel, expandFieldLabel } from "../lib/labels";
 import { AvailabilityCell } from "./AvailabilityCell";
 
 type Props = {
@@ -17,7 +18,7 @@ export function FieldRow({ facility, days, onSelect }: Props) {
       <div className="w-64 shrink-0 overflow-hidden">
         <div className="flex items-center gap-2">
           <div className="truncate text-sm font-medium text-zinc-900">
-            {facility.facility.field_label}
+            {expandFieldLabel(facility.facility.field_label)}
           </div>
           {facility.has_full_closure && (
             <span className="shrink-0 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-700">
@@ -26,7 +27,7 @@ export function FieldRow({ facility, days, onSelect }: Props) {
           )}
         </div>
         <div className="truncate text-xs text-zinc-500">
-          {facility.facility.park_id} · {facility.facility.borough}
+          {facility.facility.park_id} · {boroughLabel(facility.facility.borough)}
         </div>
       </div>
 

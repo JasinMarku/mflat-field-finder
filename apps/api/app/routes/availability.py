@@ -16,6 +16,7 @@ from app.models import (
     Facility,
     FacilityAvailability,
     Permit,
+    PermitDensity,
     Sport,
 )
 
@@ -73,6 +74,7 @@ async def get_availability(
             total_facilities=0,
             total_free_minutes=0,
             cache_status="unknown",
+            permit_density=PermitDensity.NONE,
         )
 
     park_ids = sorted({f.park_id for f in matching})
@@ -153,6 +155,15 @@ async def get_availability(
 
     cache_status = _aggregate_cache_status(list(sources_by_park.values()))
 
+    facilities_with_permits = sum(1 for fa in rows if fa.permitted_slots)
+    total = len(rows)
+    if total == 0 or facilities_with_permits == 0:
+        density = PermitDensity.NONE
+    elif facilities_with_permits / total < 0.2:
+        density = PermitDensity.LOW
+    else:
+        density = PermitDensity.HIGH
+
     return AvailabilityResponse(
         sport=sport,
         range_start=date_from,
@@ -161,6 +172,7 @@ async def get_availability(
         total_facilities=len(rows),
         total_free_minutes=sum(r.total_free_minutes for r in rows),
         cache_status=cache_status,
+        permit_density=density,
     )
 
 

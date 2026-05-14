@@ -94,6 +94,22 @@ def test_availability_endpoint_basic_query(client: TestClient) -> None:
     assert body["total_free_minutes"] == computed_total
 
 
+def test_availability_endpoint_filters_by_borough(client: TestClient) -> None:
+    response = client.get(
+        "/api/availability",
+        params={
+            "sport": "soccer",
+            "from": "2026-05-18",
+            "to": "2026-05-25",
+            "borough": "B",
+        },
+    )
+    assert response.status_code == 200
+    body = response.json()
+    for fa in body["facilities"]:
+        assert fa["facility"]["borough"] == "B"
+
+
 def test_availability_endpoint_validates_date_range(client: TestClient) -> None:
     too_long = client.get(
         "/api/availability",

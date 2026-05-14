@@ -32,7 +32,9 @@ export async function getAvailability(params: {
   qs.set("sport", params.sport);
   qs.set("from", params.from);
   qs.set("to", params.to);
-  if (params.borough) qs.set("borough", params.borough);
+  if (params.borough && params.borough.length > 0) {
+    qs.set("borough", params.borough);
+  }
   if (params.minSlotMinutes !== undefined) {
     qs.set("min_slot_minutes", String(params.minSlotMinutes));
   }

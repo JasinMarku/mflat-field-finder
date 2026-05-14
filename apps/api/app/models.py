@@ -41,6 +41,12 @@ class Borough(str, Enum):
         }[self]
 
 
+class PermitDensity(str, Enum):
+    HIGH = "high"
+    LOW = "low"
+    NONE = "none"
+
+
 class Sport(str, Enum):
     SOCCER = "soccer"
     BASEBALL = "baseball"
@@ -125,3 +131,4 @@ class AvailabilityResponse(BaseModel):
     total_free_minutes: int
     generated_at: datetime = Field(default_factory=datetime.utcnow)
     cache_status: str = "unknown"
+    permit_density: PermitDensity = PermitDensity.HIGH

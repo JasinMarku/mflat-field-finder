@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { formatDistanceToNow, parseISO } from "date-fns";
 
 import { AvailabilityMatrix } from "./components/AvailabilityMatrix";
 import { FacilityDrawer } from "./components/FacilityDrawer";
@@ -7,6 +8,7 @@ import { getAvailability, listSports } from "./lib/api";
 import type {
   AvailabilityResponse,
   FacilityAvailability,
+  PermitDensity,
   SportSummary,
 } from "./types";
 
@@ -35,12 +37,22 @@ export default function App() {
     };
   }, []);
 
-  async function handleSearch(params: { sport: string; from: string; to: string }) {
+  async function handleSearch(params: {
+    sport: string;
+    from: string;
+    to: string;
+    borough: string;
+  }) {
     setLoading(true);
     setSearchingSport(params.sport);
     setError(null);
     try {
-      const result = await getAvailability(params);
+      const result = await getAvailability({
+        sport: params.sport,
+        from: params.from,
+        to: params.to,
+        borough: params.borough || undefined,
+      });
       setResponse(result);
       setSelected(null);
     } catch (err) {
@@ -77,6 +89,7 @@ export default function App() {
           loading={loading}
           error={error}
           searchingSport={searchingSummary}
+          sportLookup={sportLookup}
           onSelectFacility={setSelected}
         />
       </main>
@@ -96,6 +109,7 @@ type ResultPanelProps = {
   loading: boolean;
   error: string | null;
   searchingSport: SportSummary | undefined;
+  sportLookup: Map<string, SportSummary>;
   onSelectFacility: (f: FacilityAvailability) => void;
 };
 
@@ -104,6 +118,7 @@ function ResultPanel({
   loading,
   error,
   searchingSport,
+  sportLookup,
   onSelectFacility,
 }: ResultPanelProps) {
   if (loading) {
@@ -113,11 +128,7 @@ function ResultPanel({
     const message = isHighVolume
       ? `Searching... this may take up to 30 seconds the first time for ${searchingSport.label}.`
       : "Searching...";
-    return (
-      <div className="rounded-lg border border-zinc-200 bg-white p-6 text-sm text-zinc-600">
-        {message}
-      </div>
-    );
+    return <LoadingSkeleton message={message} />;
   }
 
   if (error) {
@@ -137,6 +148,8 @@ function ResultPanel({
   }
 
   const totalHours = Math.round(response.total_free_minutes / 60);
+  const sportLabel = sportLookup.get(response.sport)?.label ?? response.sport;
+
   return (
     <div className="space-y-3">
       <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm">
@@ -158,7 +171,70 @@ function ResultPanel({
           </span>
         </div>
       </div>
+
+      <DensityBanner density={response.permit_density} sportLabel={sportLabel} />
+
       <AvailabilityMatrix response={response} onSelectFacility={onSelectFacility} />
+
+      <ResultFooter response={response} />
     </div>
+  );
+}
+
+function LoadingSkeleton({ message }: { message: string }) {
+  return (
+    <div className="space-y-3">
+      <div className="rounded-lg border border-zinc-200 bg-white p-4 text-sm text-zinc-600">
+        {message}
+      </div>
+      <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div
+            key={i}
+            className="flex animate-pulse items-center gap-3 border-b border-zinc-100 px-3 py-3 last:border-b-0"
+          >
+            <div className="h-8 w-64 shrink-0 rounded bg-zinc-200" />
+            <div className="h-8 flex-1 rounded bg-zinc-100" />
+            <div className="h-4 w-12 shrink-0 rounded bg-zinc-200" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DensityBanner({
+  density,
+  sportLabel,
+}: {
+  density: PermitDensity;
+  sportLabel: string;
+}) {
+  if (density === "high") return null;
+  const text =
+    density === "low"
+      ? `Few permits are issued for ${sportLabel} at NYC Parks. Most facilities below are unpermitted, which typically means first-come, first-served use is allowed during operating hours.`
+      : `No issued permits found for ${sportLabel} in this date range. These courts may be drop-in or seasonal. Always check posted signage on-site.`;
+  return (
+    <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+      {text}
+    </div>
+  );
+}
+
+function ResultFooter({ response }: { response: AvailabilityResponse }) {
+  let relativeViewed = "just now";
+  try {
+    relativeViewed = formatDistanceToNow(parseISO(response.generated_at), {
+      addSuffix: true,
+    });
+  } catch {
+    // generated_at missing or unparseable; keep fallback.
+  }
+  return (
+    <p className="px-1 text-xs text-zinc-500">
+      Showing {response.total_facilities} fields. Data refreshed daily by NYC
+      Parks. Permits viewed: {relativeViewed}.
+    </p>
   );
 }

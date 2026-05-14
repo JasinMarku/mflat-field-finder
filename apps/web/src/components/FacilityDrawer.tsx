@@ -2,6 +2,7 @@ import { useEffect, useMemo } from "react";
 import { format, isSameDay, parseISO } from "date-fns";
 
 import type { FacilityAvailability } from "../types";
+import { boroughLabel, expandFieldLabel } from "../lib/labels";
 import { enumerateDays, fmtHM } from "../lib/matrix";
 
 type Props = {
@@ -9,15 +10,6 @@ type Props = {
   rangeStart: string;
   rangeEnd: string;
   onClose: () => void;
-};
-
-const BOROUGH_LABELS: Record<string, string> = {
-  M: "Manhattan",
-  X: "Bronx",
-  B: "Brooklyn",
-  Q: "Queens",
-  R: "Staten Island",
-  "?": "Unknown",
 };
 
 export function FacilityDrawer({ facility, rangeStart, rangeEnd, onClose }: Props) {
@@ -35,7 +27,8 @@ export function FacilityDrawer({ facility, rangeStart, rangeEnd, onClose }: Prop
   if (!facility) return null;
 
   const f = facility.facility;
-  const boroughLabel = BOROUGH_LABELS[f.borough] ?? f.borough;
+  const boroughText = boroughLabel(f.borough);
+  const labelText = expandFieldLabel(f.field_label);
   const totalHours = Math.round((facility.total_free_minutes / 60) * 10) / 10;
   const permitCount = facility.permitted_slots.length;
 
@@ -50,7 +43,7 @@ export function FacilityDrawer({ facility, rangeStart, rangeEnd, onClose }: Prop
         <header className="flex items-start justify-between gap-3 border-b border-zinc-200 p-6">
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-semibold text-zinc-900">{f.field_label}</h2>
+              <h2 className="text-lg font-semibold text-zinc-900">{labelText}</h2>
               {facility.has_full_closure && (
                 <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-700">
                   Closed
@@ -58,7 +51,7 @@ export function FacilityDrawer({ facility, rangeStart, rangeEnd, onClose }: Prop
               )}
             </div>
             <p className="mt-1 text-sm text-zinc-600">
-              {f.park_id} · {boroughLabel}
+              {f.park_id} · {boroughText}
             </p>
           </div>
           <button
