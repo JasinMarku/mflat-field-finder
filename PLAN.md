@@ -9,7 +9,7 @@
 - [x] **Phase 2: domain models, config, sport normalization**
   - Deliverable: Pydantic v2 models for `Facility`, `Permit`, `AvailabilityWindow`; settings module; sport-name normalization table with tests.
 
-- [ ] **Phase 3: SQLite TTL cache + Socrata facility catalog client**
+- [x] **Phase 3: SQLite TTL cache + Socrata facility catalog client**
   - Deliverable: async httpx client for the Socrata catalog wrapped in a SQLite-backed TTL cache, with a Typer command to refresh.
 
 - [ ] **Phase 4: permit CSV fetcher with politeness controls**

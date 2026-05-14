@@ -31,7 +31,7 @@ dev = [
 fieldfinder = "app.cli:app"
 
 [tool.setuptools]
-packages = ["app", "app.domain"]
+packages = ["app", "app.domain", "app.clients"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
