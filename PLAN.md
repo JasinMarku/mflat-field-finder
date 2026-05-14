@@ -23,6 +23,7 @@
 
 - [ ] **Phase 7: React + Vite + Tailwind + FullCalendar frontend**
   - Deliverable: single-page app with filters (sport, borough, date range) rendering a unified FullCalendar view across selected fields.
+  - 7a complete: Vite + React + TS + Tailwind scaffold with QueryBar wired to `/api/sports` and `/api/availability` via the Vite dev proxy; results summary card renders.
 
 - [ ] **Phase 8: Dockerfile and Render deploy**
   - Deliverable: production Dockerfile, Render service config, and a live URL.
