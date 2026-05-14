@@ -15,7 +15,7 @@
 - [x] **Phase 4: permit CSV fetcher with politeness controls**
   - Deliverable: permit CSV fetcher with retry/backoff, per-host rate limiting, ETag/Last-Modified handling, and persisted records.
 
-- [ ] **Phase 5: availability algorithm (interval inversion)**
+- [x] **Phase 5: availability algorithm (interval inversion)**
   - Deliverable: pure function that inverts permit intervals against facility open hours to produce available windows; unit tests covering overlaps, day boundaries, and timezone edges.
 
 - [ ] **Phase 6: FastAPI HTTP endpoints**

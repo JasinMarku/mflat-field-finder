@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from collections import defaultdict
+from datetime import datetime
 from typing import Optional
 
 import typer
@@ -14,8 +16,9 @@ from app.cache import TTLCache
 from app.clients.permits import PermitClient
 from app.clients.socrata import SocrataClient
 from app.config import get_settings
+from app.domain.availability import compute_free_slots
 from app.domain.sports import all_supported_sports, display_label
-from app.models import Sport
+from app.models import Permit, Sport
 
 
 app = typer.Typer(help="Field Finder CLI", no_args_is_help=True)
@@ -109,6 +112,83 @@ async def _permits(park_id: str, refresh: bool) -> None:
             permit.end.strftime("%Y-%m-%d %H:%M"),
             permit.organization,
         )
+    console.print(table)
+
+
+@app.command()
+def check(
+    sport: str = typer.Argument(..., help="Sport code (e.g. soccer)"),
+    start: str = typer.Argument(..., help="Range start YYYY-MM-DD"),
+    end: str = typer.Argument(..., help="Range end YYYY-MM-DD (exclusive)"),
+    park_id: list[str] = typer.Option(
+        ...,
+        "--park-id",
+        help="One or more park IDs (repeatable). e.g. M028",
+    ),
+    min_slot_minutes: int = typer.Option(60, help="Filter slots shorter than this"),
+) -> None:
+    """Run an availability query end-to-end and pretty-print the result."""
+    asyncio.run(_check(sport, start, end, park_id, min_slot_minutes))
+
+
+async def _check(
+    sport_code: str,
+    start: str,
+    end: str,
+    park_ids: list[str],
+    min_slot_minutes: int,
+) -> None:
+    settings = get_settings()
+    cache = TTLCache(settings.cache_db_path)
+    permit_client = PermitClient(settings, cache)
+    target_sport = Sport(sport_code)
+    range_start = datetime.fromisoformat(start)
+    range_end = datetime.fromisoformat(end)
+
+    console.print(
+        f"Query: sport={target_sport.value} range={start}..{end} "
+        f"parks={','.join(park_ids)} data_mode={settings.data_mode}"
+    )
+
+    permits_by_park, sources = await permit_client.get_permits_for_parks(park_ids)
+
+    table = Table(title="Availability")
+    table.add_column("Park")
+    table.add_column("Field")
+    table.add_column("Permitted blocks", justify="right")
+    table.add_column("Free slots", justify="right")
+    table.add_column("Total free hrs", justify="right")
+    table.add_column("Source")
+
+    for pid in park_ids:
+        park_permits = permits_by_park[pid]
+        source = sources[pid]
+        if not park_permits:
+            table.add_row(pid, "(no permits)", "0", "0", "0.0", source)
+            continue
+        by_field: dict[str, list[Permit]] = defaultdict(list)
+        for permit in park_permits:
+            by_field[permit.field_name].append(permit)
+        for field_name in sorted(by_field):
+            field_permits = by_field[field_name]
+            free, busy = compute_free_slots(
+                field_permits,
+                range_start,
+                range_end,
+                settings.default_day_start,
+                settings.default_day_end,
+                min_slot_minutes,
+            )
+            total_free_min = sum(w.duration_minutes for w in free)
+            table.add_row(
+                pid,
+                field_name,
+                str(len(busy)),
+                str(len(free)),
+                f"{total_free_min / 60:.1f}",
+                source,
+            )
+
     console.print(table)
 
 
