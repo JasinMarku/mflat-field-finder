@@ -6,7 +6,7 @@
 - [x] **Phase 1: data source recon and architecture docs**
   - Deliverable: `docs/architecture.md` and `docs/data-sources.md` describing the Socrata facility catalog, permit CSV feed, refresh cadence, and end-to-end request flow.
 
-- [ ] **Phase 2: domain models, config, sport normalization**
+- [x] **Phase 2: domain models, config, sport normalization**
   - Deliverable: Pydantic v2 models for `Facility`, `Permit`, `AvailabilityWindow`; settings module; sport-name normalization table with tests.
 
 - [ ] **Phase 3: SQLite TTL cache + Socrata facility catalog client**
