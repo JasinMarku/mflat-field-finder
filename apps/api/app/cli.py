@@ -192,6 +192,18 @@ async def _check(
     console.print(table)
 
 
+@app.command()
+def serve(
+    host: str = typer.Option("127.0.0.1"),
+    port: int = typer.Option(8000),
+    reload: bool = typer.Option(False),
+) -> None:
+    """Run the FastAPI dev server."""
+    import uvicorn
+
+    uvicorn.run("app.main:app", host=host, port=port, reload=reload)
+
+
 @app.command("cache-clear")
 def cache_clear(
     namespace: str = typer.Argument(..., help="Cache namespace to purge"),

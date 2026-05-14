@@ -18,7 +18,7 @@
 - [x] **Phase 5: availability algorithm (interval inversion)**
   - Deliverable: pure function that inverts permit intervals against facility open hours to produce available windows; unit tests covering overlaps, day boundaries, and timezone edges.
 
-- [ ] **Phase 6: FastAPI HTTP endpoints**
+- [x] **Phase 6: FastAPI HTTP endpoints**
   - Deliverable: `/facilities`, `/availability`, `/health` endpoints with query validation, OpenAPI docs, and integration tests.
 
 - [ ] **Phase 7: React + Vite + Tailwind + FullCalendar frontend**
