@@ -3,21 +3,31 @@
 NYC Parks athletic field availability across many fields and a date range, on a single screen.
 
 **Live demo:** https://mflat-field-finder.onrender.com
-(Free-tier instance; the first request after idle may take ~30s to wake.)
+*(Free-tier instance; first request after idle may take ~30s to wake.)*
 
-Take-home for an AI consulting interview at M-Flat. The official NYC Parks permit map is pin-by-pin and date-by-date. A youth sports coordinator scheduling a season needs to compare many fields across a date range at once. This tool does that.
+The official NYC Parks permit map is pin-by-pin and date-by-date. A youth sports coordinator scheduling a season needs to compare many fields across a date range at once. This tool does that.
 
 ## How to use it
 
-Visit the live URL. Pick a sport, pick dates, optionally pick a borough, hit Search. Click any row to see the day-by-day permit detail.
+Visit the live URL. Pick a sport, pick dates, optionally pick a borough, hit Search.
+
+### The main view
+
+Every matching field across NYC, sorted by total free hours, with a color-coded grid showing free vs. permitted time per day. Green is open, red is permitted.
 
 ![Availability matrix](docs/images/matrix.png)
 
+### Drill into any field
+
+Click any row for a day-by-day breakdown: who has the field, when, and what's left.
+
 ![Facility detail drawer](docs/images/drawer.png)
 
-![Pickleball domain insight banner](docs/images/pickleball-insight.png)
+### Domain insight, not just data
 
-The third screenshot is worth explaining. A search for pickleball returned facilities with no permits at all, which looked at first like a bug or missing data. It is not. NYC Parks runs pickleball as drop-in, first-come-first-served on shared courts rather than via exclusive-use permits. The tool now detects low permit-density sports and surfaces an explanation, instead of silently returning a misleading all-green grid that would lead a coordinator to assume every court is bookable.
+A search for pickleball returned facilities with no permits at all, which initially looked like a bug. It isn't. NYC Parks runs pickleball as drop-in, first-come-first-served on shared courts rather than via exclusive-use permits. The tool detects low-permit-density sports and surfaces an explanation, rather than silently returning a misleading all-green grid that would tell a coordinator every court is bookable.
+
+![Pickleball domain insight banner](docs/images/pickleball-insight.png)
 
 ## Architecture
 
