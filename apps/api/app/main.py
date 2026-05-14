@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
+import logging
+import time
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
@@ -13,20 +16,72 @@ from app.cache import TTLCache
 from app.clients.permits import PermitClient
 from app.clients.socrata import SocrataClient
 from app.config import get_settings
+from app.models import Sport
 from app.routes import availability as availability_routes
 from app.routes import facilities as facilities_routes
 from app.routes import sports as sports_routes
+
+
+logger = logging.getLogger(__name__)
+
+
+_POPULAR_SPORTS: tuple[Sport, ...] = (
+    Sport.SOCCER,
+    Sport.BASEBALL,
+    Sport.SOFTBALL,
+    Sport.BASKETBALL,
+    Sport.TENNIS,
+    Sport.HANDBALL,
+)
+
+
+async def prefetch_popular_sports(
+    socrata: SocrataClient,
+    permits: PermitClient,
+) -> None:
+    try:
+        facilities = await socrata.get_all_facilities()
+        unique_parks: set[str] = set()
+        for facility in facilities:
+            if any(s in facility.sports for s in _POPULAR_SPORTS):
+                unique_parks.add(facility.park_id)
+        logger.info(
+            "Prefetching permits for %d parks in background...",
+            len(unique_parks),
+        )
+        t0 = time.monotonic()
+        await permits.get_permits_for_parks(sorted(unique_parks))
+        logger.info(
+            "Permit prefetch complete in %.1fs",
+            time.monotonic() - t0,
+        )
+    except Exception as exc:
+        logger.warning("Background prefetch failed: %s", exc)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     cache = TTLCache(settings.cache_db_path)
+    socrata = SocrataClient(settings, cache)
+    permit_client = PermitClient(settings, cache)
+
     app.state.settings = settings
     app.state.cache = cache
-    app.state.socrata_client = SocrataClient(settings, cache)
-    app.state.permit_client = PermitClient(settings, cache)
-    yield
+    app.state.socrata_client = socrata
+    app.state.permit_client = permit_client
+
+    facilities = await socrata.get_all_facilities()
+    logger.info("Catalog warmed: %d facilities.", len(facilities))
+
+    prefetch_task = asyncio.create_task(prefetch_popular_sports(socrata, permit_client))
+    app.state.prefetch_task = prefetch_task
+
+    try:
+        yield
+    finally:
+        if not prefetch_task.done():
+            prefetch_task.cancel()
 
 
 app = FastAPI(

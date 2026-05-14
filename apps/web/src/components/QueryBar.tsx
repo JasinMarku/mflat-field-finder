@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { format, addDays } from "date-fns";
 
-import { listSports } from "../lib/api";
 import type { SportSummary } from "../types";
 
 type Params = { sport: string; from: string; to: string };
 
 type Props = {
+  sports: SportSummary[];
+  sportsError: string | null;
   onSearch: (params: Params) => void;
   loading: boolean;
 };
@@ -14,31 +15,18 @@ type Props = {
 const today = () => format(new Date(), "yyyy-MM-dd");
 const inAWeek = () => format(addDays(new Date(), 7), "yyyy-MM-dd");
 
-export function QueryBar({ onSearch, loading }: Props) {
-  const [sports, setSports] = useState<SportSummary[]>([]);
-  const [sportsError, setSportsError] = useState<string | null>(null);
+export function QueryBar({ sports, sportsError, onSearch, loading }: Props) {
   const [sport, setSport] = useState<string>("soccer");
   const [from, setFrom] = useState<string>(today());
   const [to, setTo] = useState<string>(inAWeek());
 
   useEffect(() => {
-    let cancelled = false;
-    listSports()
-      .then((list) => {
-        if (cancelled) return;
-        setSports(list);
-        if (!list.some((s) => s.code === "soccer") && list.length > 0) {
-          setSport(list[0].code);
-        }
-      })
-      .catch((err: Error) => {
-        if (cancelled) return;
-        setSportsError(err.message);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    if (sports.length === 0) return;
+    if (!sports.some((s) => s.code === sport)) {
+      const preferred = sports.find((s) => s.code === "soccer");
+      setSport((preferred ?? sports[0]).code);
+    }
+  }, [sports, sport]);
 
   const invalidRange = from >= to;
   const disabled = loading || invalidRange || !sport;
@@ -52,9 +40,7 @@ export function QueryBar({ onSearch, loading }: Props) {
           onChange={(e) => setSport(e.target.value)}
           className="min-w-[10rem] rounded-md border border-zinc-300 bg-white px-3 py-2 text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-400"
         >
-          {sports.length === 0 && (
-            <option value="soccer">soccer</option>
-          )}
+          {sports.length === 0 && <option value="soccer">soccer</option>}
           {sports.map((s) => (
             <option key={s.code} value={s.code}>
               {s.label} ({s.facility_count})
