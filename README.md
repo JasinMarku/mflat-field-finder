@@ -50,6 +50,7 @@ The human role was architecture, direction, review, and judgment. At each phase:
 - **Domain insight feature.** Looking at a pickleball query that came back empty and recognizing this as a real-world signal worth surfacing, not a bug to hide. That observation became the permit-density banner.
 - **WAF workaround with honesty.** The permit endpoint sits behind CloudFront and rejects plain bot User-Agents. We use a hybrid Mozilla-prefixed UA with our app name appended, and document the tradeoff candidly in [docs/data-sources.md](docs/data-sources.md) including the note that a production deployment should request an allow-list from NYC Parks instead.
 - **Bug review.** Catching that the `CLOSED` badge was firing on fields with 105 free hours, because `has_full_closure` was true if any closure permit existed for that field, regardless of whether it overlapped the queried week. Fixed in [adf5ff7](https://github.com/JasinMarku/mflat-field-finder/commit/adf5ff7) and [5d36a6a](https://github.com/JasinMarku/mflat-field-finder/commit/5d36a6a).
+- **Threshold tuning.** The permit-density signal initially flagged Soccer as "low density," which was wrong: Soccer is the highest-permit-density sport in NYC. The original logic measured the percentage of facilities with any permit, which failed because permits cluster in a small number of high-traffic parks. I changed it to use total permitted slot count instead of facility ratio, which correctly distinguishes "drop-in sports" (pickleball, 0-5 slots citywide) from "permit-heavy sports" (soccer, hundreds of slots). Tuned by comparing live results across sports, not by picking a number that felt right.
 
 ## Engineering tradeoffs
 
@@ -73,6 +74,7 @@ The human role was architecture, direction, review, and judgment. At each phase:
 
 Features deferred to stay inside the brief's one-hour spirit:
 
+- **Mobile-first view.** The current matrix is built for a desktop or laptop screen where you're comparing many fields side by side. On a phone, that comparison fundamentally fights a 390-pixel viewport. For mobile I would not make the matrix responsive: I would build a different view entirely, a sorted list of top-10 fields with compact per-day chips instead of a grid. A coordinator on a phone is usually answering "where can my team play tonight," which is a different shape of question than "compare my full schedule for the week."
 - Shareable query URLs
 - CSV export of matching slots
 - Map view alongside the matrix
