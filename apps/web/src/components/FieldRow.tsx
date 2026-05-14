@@ -20,7 +20,7 @@ export function FieldRow({ facility, days, onSelect }: Props) {
           <div className="truncate text-sm font-medium text-zinc-900">
             {expandFieldLabel(facility.facility.field_label)}
           </div>
-          {facility.has_full_closure && (
+          {facility.has_full_closure && facility.total_free_minutes === 0 && (
             <span className="shrink-0 rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-700">
               Closed
             </span>
