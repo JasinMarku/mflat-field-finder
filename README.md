@@ -3,7 +3,7 @@
 NYC Parks athletic field availability across many fields and a date range, on a single screen.
 
 **Live demo:** https://mflat-field-finder.onrender.com
-*(Free-tier instance; first request after idle may take ~30s to wake.)*
+*(Running on Render's Starter tier so the container stays warm. Searches return in 1-2 seconds from the warm cache.)*
 
 The official NYC Parks permit map is pin-by-pin and date-by-date. A youth sports coordinator scheduling a season needs to compare many fields across a date range at once. This tool does that.
 
@@ -67,7 +67,7 @@ The human role was architecture, direction, review, and judgment. At each phase:
 ## What would change for production
 
 - Move the cache to Redis so multiple workers share state.
-- Attach a persistent disk so the SQLite cache survives cold starts.
+- Persistent disk so the SQLite cache survives container restarts. Currently running on Render's Starter tier with an ephemeral filesystem; the lifespan handler re-warms the cache on each boot. For real production traffic, a persistent volume or external Redis would eliminate the warm-up window entirely.
 - A scheduled refresher (apscheduler) that re-warms popular sports nightly.
 - Structured logs, OpenTelemetry traces, per-park latency metrics.
 - Partner with NYC Parks for an allow-listed egress IP or a real API key, so we are not depending on a hybrid User-Agent.
