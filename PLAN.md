@@ -30,5 +30,5 @@
 - [x] **Phase 8: Dockerfile and Render deploy**
   - Deliverable: production Dockerfile, Render service config, and a live URL.
 
-- [ ] **Phase 9: README polish and walkthrough script**
+- [x] **Phase 9: README polish and walkthrough script**
   - Deliverable: final README with screenshots, architecture diagram, and a recorded/walkthrough script for the interview.
