@@ -13,13 +13,13 @@ Visit the live URL. Pick a sport, pick dates, optionally pick a borough, hit Sea
 
 ### The main view
 
-Every matching field across NYC, sorted by total free hours, with a color-coded grid showing free vs. permitted time per day. Green is open, red is permitted.
+Filter by sport, date range, and optionally borough. Every matching field shows up sorted by total free hours, with a color-coded grid showing free vs. permitted time per day. Green is open, red is permitted. The example below shows Soccer fields in Staten Island for a six-day range.
 
 ![Availability matrix](docs/images/matrix.png)
 
 ### Drill into any field
 
-Click any row for a day-by-day breakdown: who has the field, when, and what's left.
+Click any row for a day-by-day breakdown: who has the field, when, and what's left. The example shows Softball-02 in Brooklyn with three permitted blocks across the week and the exact free windows around them.
 
 ![Facility detail drawer](docs/images/drawer.png)
 
