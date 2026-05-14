@@ -160,11 +160,11 @@ async def get_availability(
 
     cache_status = _aggregate_cache_status(list(sources_by_park.values()))
 
-    facilities_with_permits = sum(1 for fa in rows if fa.permitted_slots)
+    total_permitted_slots = sum(len(fa.permitted_slots) for fa in rows)
     total = len(rows)
-    if total == 0 or facilities_with_permits == 0:
+    if total == 0 or total_permitted_slots == 0:
         density = PermitDensity.NONE
-    elif facilities_with_permits / total < 0.2:
+    elif total_permitted_slots < 10:
         density = PermitDensity.LOW
     else:
         density = PermitDensity.HIGH
