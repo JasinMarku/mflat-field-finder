@@ -147,7 +147,12 @@ async def get_availability(
                     free_slots=free,
                     permitted_slots=busy,
                     total_free_minutes=sum(w.duration_minutes for w in free),
-                    has_full_closure=any(p.is_full_closure for p in field_permits),
+                    has_full_closure=any(
+                        p.is_full_closure
+                        and p.start < date_to
+                        and p.end > date_from
+                        for p in field_permits
+                    ),
                 )
             )
 
