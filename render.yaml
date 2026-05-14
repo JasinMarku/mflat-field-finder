@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: mflat-field-finder
+    runtime: docker
+    region: oregon
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DATA_MODE
+        value: live
+      - key: USER_AGENT
+        value: "Mozilla/5.0 (compatible; FieldFinder/1.0; +https://github.com/JasinMarku/mflat-field-finder)"
+      - key: CATALOG_CACHE_TTL
+        value: "86400"
+      - key: PERMITS_CACHE_TTL
+        value: "21600"
+      - key: SCRAPE_MAX_CONCURRENCY
+        value: "4"
+      - key: SCRAPE_MIN_INTERVAL_MS
+        value: "250"

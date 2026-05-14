@@ -27,7 +27,7 @@
   - 7b complete: availability matrix (field x day grid with free/busy segments) and per-facility detail drawer with day-by-day permit and free listings.
   - 7c complete: borough filter, sport permit-density banner, expanded field labels (e.g. "Pkb 04" → "Pickleball Court 04"), date-range guardrails, loading skeleton, and result footer.
 
-- [ ] **Phase 8: Dockerfile and Render deploy**
+- [x] **Phase 8: Dockerfile and Render deploy**
   - Deliverable: production Dockerfile, Render service config, and a live URL.
 
 - [ ] **Phase 9: README polish and walkthrough script**

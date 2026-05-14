@@ -4,12 +4,16 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 import time
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import AsyncIterator
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app import __version__
 from app.cache import TTLCache
@@ -107,3 +111,19 @@ app.include_router(availability_routes.router)
 @app.get("/health", tags=["meta"])
 def health() -> dict[str, str]:
     return {"status": "ok", "version": __version__}
+
+
+_static_dir = os.getenv("STATIC_DIR")
+if _static_dir and Path(_static_dir).exists():
+    _static_path = Path(_static_dir)
+    _assets_path = _static_path / "assets"
+    if _assets_path.exists():
+        app.mount("/assets", StaticFiles(directory=str(_assets_path)), name="assets")
+
+    _index_path = _static_path / "index.html"
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def spa_fallback(full_path: str) -> Response:
+        if full_path.startswith(("api/", "health", "docs", "openapi", "redoc")):
+            return Response(status_code=404)
+        return FileResponse(_index_path)

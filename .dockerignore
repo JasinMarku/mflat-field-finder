@@ -1,0 +1,16 @@
+apps/api/.venv
+apps/api/data
+apps/api/__pycache__
+apps/api/**/__pycache__
+apps/web/node_modules
+apps/web/dist
+.git
+.gitignore
+*.md
+docs/
+!README.md
+.env
+.env.local
+.pytest_cache
+.ruff_cache
+.mypy_cache
