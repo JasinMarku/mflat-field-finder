@@ -11,6 +11,7 @@ from rich.console import Console
 from rich.table import Table
 
 from app.cache import TTLCache
+from app.clients.permits import PermitClient
 from app.clients.socrata import SocrataClient
 from app.config import get_settings
 from app.domain.sports import all_supported_sports, display_label
@@ -71,6 +72,42 @@ async def _catalog(sport: Optional[str], limit: int, refresh: bool) -> None:
             sport_list,
             facility.surface_type or "",
             "yes" if facility.is_lighted else "no",
+        )
+    console.print(table)
+
+
+@app.command()
+def permits(
+    park_id: str = typer.Argument(..., help="Park ID like M028, B073"),
+    refresh: bool = typer.Option(False, help="Force re-fetch, ignore cache"),
+) -> None:
+    """Fetch and display permits for a single park."""
+    asyncio.run(_permits(park_id, refresh))
+
+
+async def _permits(park_id: str, refresh: bool) -> None:
+    settings = get_settings()
+    cache = TTLCache(settings.cache_db_path)
+    if refresh:
+        cache.purge_namespace("permits_by_park")
+    client = PermitClient(settings, cache)
+    permits_by_park, sources = await client.get_permits_for_parks([park_id])
+    park_permits = permits_by_park[park_id]
+    source = sources[park_id]
+
+    table = Table(title=f"Permits for {park_id} ({len(park_permits)} found, source: {source})")
+    table.add_column("Field")
+    table.add_column("Sport / Event")
+    table.add_column("Start")
+    table.add_column("End")
+    table.add_column("Organization")
+    for permit in park_permits[:30]:
+        table.add_row(
+            permit.field_name,
+            permit.sport_or_event,
+            permit.start.strftime("%Y-%m-%d %H:%M"),
+            permit.end.strftime("%Y-%m-%d %H:%M"),
+            permit.organization,
         )
     console.print(table)
 

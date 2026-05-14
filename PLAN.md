@@ -12,7 +12,7 @@
 - [x] **Phase 3: SQLite TTL cache + Socrata facility catalog client**
   - Deliverable: async httpx client for the Socrata catalog wrapped in a SQLite-backed TTL cache, with a Typer command to refresh.
 
-- [ ] **Phase 4: permit CSV fetcher with politeness controls**
+- [x] **Phase 4: permit CSV fetcher with politeness controls**
   - Deliverable: permit CSV fetcher with retry/backoff, per-host rate limiting, ETag/Last-Modified handling, and persisted records.
 
 - [ ] **Phase 5: availability algorithm (interval inversion)**
