@@ -1,0 +1,38 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Node
+node_modules/
+dist/
+.vite/
+
+# SQLite
+*.sqlite
+*.sqlite-journal
+
+# Local data
+data/
+.cache/
+
+# Env
+.env
+.env.local
+
+# Claude Code
+.claude/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
